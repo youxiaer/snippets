@@ -29,7 +29,6 @@ function getPageInfo($url) {
 
 function loadImage($dir) {
     if (!file_exists($dir . 'url.txt')) {
-echo $dir . 'url.txt';echo "\n";
         return false;
     }
     $urls = file_get_contents($dir . 'url.txt');
@@ -63,11 +62,13 @@ if(defined("INIT_URL")) {
 } else {
     exit("please define the seed url\n");
 }
-//echo $pageUrl . "\n"; 
+
+if (!is_dir('image')) {
+    mkdir('image');
+} 
 $pidNums = 0;
 for ($i = PAGE_START; $i < (PAGE_START + PAGE_COUNT); $i++) {
     $pageUrl = DOMAIN . $indexMatches[1] . '&search=&page=' . $i;
-echo $pageUrl . "\n";
     $pageInfo = getPageInfo($pageUrl);
     if (!$pageInfo) {
         continue;
@@ -76,7 +77,7 @@ echo $pageUrl . "\n";
     $pageInfo = mb_convert_encoding($pageInfo, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
     $pattern = '/<a href=\"(.+?)\" target=\"_blank\" id=\"\">(.+?)\[(.+?)P\]<\/a>/';
     preg_match_all($pattern, $pageInfo, $pageMatches);
-//var_dump($pageMatches);exit;
+    
     $count = count($pageMatches[1]);
     $infoPattern = '/<input type=\'image\' src=\'(.+?)\' onclick=\"window.open/';
     for ($j = 0; $j < $count; $j++) {
@@ -87,16 +88,15 @@ echo $pageUrl . "\n";
         }
         $info = mb_convert_encoding($info, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
         preg_match_all($infoPattern, $info, $infoMatches);
-        //$urlDir = './image/' . $pageMatches[2][$j] . '[' . $pageMatches[3][$j] . 'P]';
+        
         $urlDir = './image/' . $i . '_' . $j . '[' . $pageMatches[3][$j] . 'P]';
         if (!is_dir($urlDir)) {
             mkdir($urlDir);
         }
-//var_dump($infoMatches);exit;
+
         foreach ($infoMatches[1] as $picUrl) {
             file_put_contents($urlDir . '/url.txt', $picUrl . "\n", FILE_APPEND);
         }
-        echo $i . '    ' . $j . "\n";
         $pid = pcntl_fork();
         if ($pid == 0) {
             loadImage($urlDir . '/');
