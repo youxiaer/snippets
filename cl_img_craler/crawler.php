@@ -39,7 +39,6 @@ function loadImage($dir) {
         $rs = @ file_get_contents($urls[$i]);
         if ($rs) {
             file_put_contents($dir . ($i + 1) . '.jpg', $rs);
-            echo ($i + 1) . "    success\n";
         }
     }
     return true;
@@ -50,7 +49,6 @@ if(defined("INIT_URL")) {
     $pageUrl = INIT_URL;
 } elseif (defined("DOMAIN")) {
     $indexUrl = DOMAIN . 'index.php';
-    echo  "凛冬将至: " .  $indexUrl. "\n";
     $index = file_get_contents($indexUrl);
     $index = mb_convert_encoding($index, 'UTF-8', 'UTF-8,GBK,GB2312,BIG5');
 
